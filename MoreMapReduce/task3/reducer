@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+import sys
+
+current_minute = None
+counts = {'INFO': 0, 'WARN': 0, 'ERROR': 0, 'FATAL': 0, 'TOTAL': 0}
+
+def print_stats():
+    if current_minute is not None:
+        print(f"{current_minute}\t{counts['TOTAL']}\t{counts['INFO']}\t{counts['WARN']}\t{counts['ERROR']}\t{counts['FATAL']}")
+
+for line in sys.stdin:
+    parts = line.strip().split('\t')
+    if len(parts) == 2:
+        minute, severity = parts[0], parts[1]
+        if current_minute == minute:
+            counts['TOTAL'] += 1
+            if severity in counts: counts[severity] += 1
+        else:
+            print_stats()
+            current_minute = minute
+            counts = {'INFO': 0, 'WARN': 0, 'ERROR': 0, 'FATAL': 0, 'TOTAL': 1}
+            if severity in counts: counts[severity] += 1
+print_stats()

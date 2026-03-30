@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# 1. Prep HDFS - The template adds "/input" automatically, so we put it there
+hadoop fs -rm -r -f /input/log_input /output/log_output 2>/dev/null
+hadoop fs -mkdir -p /input/log_input
+hadoop fs -put Hadoop_2k.log /input/log_input/
+
+# 2. Set permissions
+chmod +x log-processing/mapper log-processing/reducer
+
+# 3. Run the Canvas streaming script
+# Arg 1: Folder name (log-processing)
+# Arg 2: Input folder name (inside /input/)
+# Arg 3: Output folder name (inside /output/)
+./run-hadoop-streaming log-processing log_input log_output
+
+# 4. Print result sorted by minute (column 1)
+hadoop fs -cat /output/log_output/part-* | sort -n -k1,1
